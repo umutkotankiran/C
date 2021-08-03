@@ -1,592 +1,441 @@
 ﻿/*
 
-neden fonksiyonel makro kullanıyoruz.
-Burada hile yapılıyor.fonksiyon çağrısı gibi bir görüntü var ama ortada fonksiyon yok.
-fonksiyon çağrı ifadesine benzer kodu preprocessor macro olarak alıp bir replacement yapıyor.
+aşağıdakilerin define komutu yok
+aşağıdakiler en önemlileri
 
-Amaç, fonksiyonu elemine etmek.
-Bunun sebeplerinden biri ve önemli olanı maliyet.
-fonksiyona giriş ve fonksiyondan çıkış kodları maliyeti gereksiz yere toplam maliyete eklenecek.
+Predefined symbolic constants
+__LINE__	kodun hangi satırda oluduğunu verir
+__FILE__	file adını
+__DATE__	tarih
+__TIME__	saati verir.
+__func__   c99 da geldi. Bu tip daha macro var. fonksiyonun adını verir.
+__STDC__	eğer derleyicinin eklentileri kapalıysa bu macro tanımlı kabul ediliyor.
 
-isleap yerine macro
-#define isleap(y)	((y) % 4 == 0 &&  ((y) % 100 != 0 || (y) % 400 == 0))
+yani. standart bir C derleyicisi aşağıya girer.Aksi halde defined kabul edilmeyecek.
+cpp karşılığı da var __cplusplus
+#ifdef __STDC__
 
-compiler ın hedeflerinden biri de kodu optimize etmek
-bu optimize işini ne kadar geniş kod bloğunda yaparsa o kadar iyi optimize eder.
-Fonksiyonları optimize etme şansı yok. Compiler için fonksiyon karakutu.
-yani fonksiyon çağrıları compilerın optimize etme ihtimali olan kodu küçültüyor.
+#endif  
 
-===============================================================================
+yukarıdaki macrolar undef ile kaldırılamaz.
 
-Mülakat sorusu : fonksiyon ile makroların kıyaslanması.% 90 diyor :D
 
-1-Macrolar generic/türden bağımsız, fonksiyonlar türe bağımlı.
-2-Macrolar source kodu, dolayısıyla oluşan makina/exe kodu büyütme eğiliminde.
-embedded ortamda istenilmeyen durum olabilir çünkü alan kısıtlı bu ortamlarda.
-3-fonksiyonlar için debuggerlar çok iyi destek veriyor.Macrolarda bu söy konusu değil.
-fonksiyon debugger friendly.
-4-Macrolar güvenli değil.Yanlış kullanımda hata riski çok yüksek.
-mesela #define square(x)   ((x) * (x))  
-burada square(x++) yazılırsa (x++) * (x++) yani undefined behaviour.
-kod istenildiği gibi çalışmadığında macrolara bi bakmak iyi olur.
-5-Function pointer gereken yerde macro kullanamayız.Çünkü macroların adresi yok.
-Macrolar yer değiştirme işi yapıyor zaten.
+====================================================================
 
-================================================================================
+Switch statement 
+if yerine kullanılabilir.
+Daha kolay okunup yazılıyor ve duruma göre derleyici daha iyi optimize ediyor switch kodunu.
 
-aşağıdaki gibi garip gelen örnekler de var.
+buradaki x integer expression. Reel sayı olamaz.
+case bir anahtar sözcük. bunlar etiket/label.bunlara case etiketi deniyor. 
+goto deyiminde de etiketler kullanılıyor
 
-#define isupper(c)		((c) >= "A" && (c) <= "Z")
+not case etiketleri unique olmalı. yoksa sentaks hatası.
 
-int main()
+switch(x)
+	case 1:
+		statement; statement;
+	case 2:
+		statement;
+
+
+statementlardan sonra break koymazsak koşulu sağladıktan sonraki tüm etiketlere girer.
+
+x = 2;
+switch(x)
+	case 1:
+	...
+	case 2:  break koyulmazsa.burası ve sonraki tüm caselerin içerisine girer
+	...
+	case 3:  
+	...
+	case 4:
+	...
+
+
+
+case 4:
+...
+case 2:
+...
+case 5:
+...
+yukarıdaki gibide olabilir.
+sıralama olmak zorunda değil.
+
+case 10 / 2  - 1:   buda geçerli.
+
+if ve else if merdivenleri için switch yazılabilir ama hepsi için yazamayız.
+mesela 
+if(x > 2.3) burada tamsayı yok.reel sayı var. switch te tamsayı olmak zorunda.
+...
+else if ..     
+
+---------
+int n = 3;
+int x = 5;
+
+switch(n)
 {
-	inc c = 'A';
-	if isupper(c)   // burada parantez içinde değil isupper(c), çünkü macroda parantez içine alındı zaten
-	{				// gariplikte direkt farkedilmemesi.Normalde if ten sonraki ifade parantez içine alınır.
-		printf("ok");
-	}
+	case 1:
+		asdasdsad
+	case 2:
+		qweqwewqe
+	case x:
+		qwe123ased      x constant olmadığı için sentaks hatası. C++ ta sentaks hatası değil.
 }
 
-#define getval(x,y)		(ptr->a[x] * ptr->b[y])
-
-getval(i,k)
-ptr->a[i] * ptr->b[k]
-
-getval(x + y, z - t)
-ptr->a[x + y] * ptr->b[z - t]
-
-===============================================================
-
-Preprocessor Operators
-# stringification , string yapma operatoru
-## token pasting , token birleştirme operatoru
-	ve defined	,  defined
-
-# preprocessor komutlarının başındaki değil, macro tanımlarken kullanılan.
-	unary prefix.
-// #x macro açılımında bunu görürse "x" hale getirir.Bazı komplex macrolarda kullanılıyor.
-
-ör: 
-#define   str(x)  #x 
-
-int main()
-{
-	printf(str(UMUT));   // printf("UMUT"); haline getirir.
-}
-
-#define iprint(x)   printf("%d",x)
-
-int main()
-{
-int x = 15, y = 20, z = 50;
-iprint(x); //  15
-iprint(x+y+z); //85 
-iprint(x*x+y*y+z*z); // 3125
-
-}
-
-
-#define iprint(x)	printf(#e " = %d\n",e);
-
-int main()
-{
-int x = 15, y = 20, z = 50;
-iprint(x); //  15
-iprint(x+y+z); //85
-iprint(x*x+y*y+z*z); // 3125
-
-}
-
-## Operatörü
-
-a ## b -> ab  hale getiriyor.
-
-#define bir(x,y)   x##y
-
-int main()
-{
-	int value = 0;
-	++bir(val, ue);
-	printf("value = %d\n", value);
-}
-
-Önişlemci programa kod yazdırmak istiyoruz.
-örneğin benzer iki fonksiyon var diyelim biri int değer döndürüyor diğeri double
-bunları macro ile yazdırmak istiyoruz.
-
-int func(int a, int b)
-{
-	int c = a*b + 258;
-	int d = c * 3 / 5;		
-	return c*d/2;
-}
-
-double func(double a, double b)
-{
-	double c = a*b + 258;
-	double d = c * 3 / 5;		
-	return c*d/2;
-}
-
-yukarıdaki fonksiyonlar çok benzer macro ile yazdırmak daha pratik olacak.Örnek baya güzel.
-
-#include <stdio.h>
-#include <stdlib.h>
-#define make_func(t)	t func(t a, t b) \
-{ \
-	t c = a * b + 258; \
-	t d = c * 3 / 5;  \
-	return c * d / 2; \
-}
-
-make_func(int)    // burada fonksiyon isimleri C de overloading olmadığı için sentaks hatası.Çözümü birsonraki örnekte.
-make_func(long)
-make_func(double)
-
-int main()
-{
-	int x = func(12, 24);
-}
-
-
-
-BURADA FONKSIYON ISIMLERINIDE DEGISTIRMEK GEREKIYOR
-
-
-#include <stdio.h>
-#include <stdlib.h>
-// fonksiyonda ##t geldi yani funksiyonadı_tipi oldu
-#define make_func(t)	t func_##t(t a, t b) \
-{ \
-	t c = a * b + 258; \
-	t d = c * 3 / 5;  \
-	return c * d / 2; \
-}
-
-make_func(int)    // artık yukarıda eklenen ##t birleştirme operatörü ile sorun ortadan kalktı.
-make_func(long)		// globalde scope ta function definition yaptık.
-make_func(double)
-
-int main()
-{
-	int x = func_int(12, 24);
-	int y = func_double(2.5, 7.5);
-}
-
-
-ÖRNEK
-
-#include <stdio.h>
-
-// aşağıdaki gibi bırakırsam sentaks hatası olur else kısmında
-#define swap(a,b)	{int temp = a; a = b; b = temp;}
-
-
-int main()
-{
-	int x = 10;
-	int y = 45;
-
-	if (x > y)
-		swap(x, y); //sentaks hatasının sebebi fonksiyondan sonra ; geliyor ve if-else yapısını bozuyor
-	else
-		++x;
-
-}
-
-
-düzeltmek için do while kullanılabilir.
-
-#include <stdio.h>
-
-// do-while döngüsünde, while sonunda ; olduğu için 
-// macroda boş bırakıyorum ki kodda ; olacağı için sentaks hatası vermemesi için.
-#define swap(a,b)	do {int temp = a; a = b; b = temp;}while(0)
-
-
-int main()
-{
-	int x = 10;
-	int y = 45;
-
-	if (x > y)
-		swap(x, y);
-	else
-		++x;
-
-}
-
-=================================
-=================================
-
-kullanıldığı yerler özet
-
-#define PUBLIC
-#define SIZE	100  // symbolic constant
-#define sum_square(x,y) ((x) * (x) + (y) * (y))  
-
-Koşullu derleme komutları - Conditional compiling Sıra burada.
---------------------------------------------------------------
-Donanıma bağlı olarak derleyicinin farklı kodları derlemesi
-OS e bağlı olarak derleyicinin farklı kodları derlemesi
-Compiler a bağlı olarak derleyicinin farklı kodları derlemesi
-Programlama Diline bağlı olarak derleyicinin farklı kodları derlemesi.
-Versiyona bağlı olarak derleyicinin farklı kodları derlemesi
-Bölge/Ülkeye bağlı olarak derleyicinin farklı kodları derlemesi
-Dile bağlı olarak derleyicinin farklı kodları derlemesi
-birçok madde daha olabilir.
-
----------------------------------------------------------------
-
-Assertion runtime da bir kodlama hatası varsa assertion kodunda takılıp ekrana birşeyler yazdıracak
-ve bunu bulup düzeltiriz.
-
-void func(int x)
-{
-	if (x == 0)
-	{
-		printf("%s kaynak dosyasının %d. satirinda %s fonksiyonu icinde sifira bolum hatası", __FILE__,
-			__LINE__, __func__);
-		abort();
-	}
-
-	int y = 5;
-	y /= x;
-}
-int main()
-{
-	func(0);
-}
-
-=====================================================
-Koşullu derlemeye giriş yapıldı. Bunu inceleyelim
-
-#if
-#endif
-#else
-#elif
-#ifdef
-#ifndef
-#undef
-=====================================================
-
-//Preprocessor expression
-//tamsayi turlerinden sabit ifadesi
-//gerçek sayi olamaz
-
-#define SIZE		100
-
-//bu iften girerse kodları derleyiciye verir.Girmezse vermez.
-#if SIZE > 10
-	typedef int Word;
-	Word a[10];
-
-#endif
---------------
-
-#if SIZE > 10
-	#include "utility.h"
-	typedef int Word;
-	Word a[10];
-#endif
-
---------------
-
-#if SIZE > 10
-	#include "utility.h"
-	typedef int Word;
-	Word a[10];
-#else
-	#include "futility.h"
-	typedef unsigned int Word;
-	Word a[20];
-#endif
-
---------------
-
-ifdef -> if defined demek yani bu daha önce tanımlandı mı demek.Tanımlandıysa True.
-
-// SIZE tanımlı ise içeri ifdef e girer tanımlı değilse else e girer.
-// Kaç değerine define edldiğinin bir önemi yok yeterki define edilsin.
-
-#define UMUT
-//yukarıdaki UMUT u define ediyor.
-
-#ifdef UMUT  
-	#include "utility.h"
-	typedef int Word;
-	Word a[10];
-#else
-	#include "futility.h"
-	typedef unsigned int Word;
-	Word a[20];
-#endif
-
--------------------------------
-
-ifdef in ifndef -> yani bir define işlemi ile ilgili bahsi geçen tanım yoksa girer if(!x) gibi
-
-UMUT tanımlı değilse(tanımlanmamışsa) blue red kısmına girer.Tanımlıysa white yellow kısmına girer.
-#ifndef UMUT
-	enum Colors {Blue,Red}
-#else
-	enum Colors {while,Yellow}
-
-#endif
-
-================================================================
-
-3 tane if yapısı var
-#if
-#ifdef
-#ifndef
-
-#define PRC 3.1234    // burada sorun yok.
-#if PRC > 4.23123    // burası hata verir .Çünkü tamsayı olmak zorunda bu karşılaştırma.
-
-if içinde karşılaştırma operatörleri
-logic operatörler
-aritmetik operatörler
-bitsel operatörler kullanılabilir.
-
---------------------------------------------
-
-#define EUR		0
-#define USD		1
-#define GBP		2
-#define JPY		3
-
-#define CURRENCY	EUR
-
-#if CURRENCY == EUR
-	const char *gp = eur;
-#else
-	#if CURRENCY == USD
-	const char *gp = usd;
-	#else
-		#if CURRENCY == GBP
-			const char *gp = gbp;
-			#else
-				#if CURRENCY == JPY
-					const char *gp = jpy;
-				#endif
-		#endif
-	#endif
-#endif
-
-//Yukarısı bir elseif merdiveni
-// bunu elif ile yapabliriz ve daha mantıklı düzgün görünür.
-
-#if CURRENCY == EUR
-	const char *gp = eur;
-#elif CURRENCY == USD
-	const char *gp = usd;
-#elif CURRENCY == GBP
-	const char *gp = gbp;
-#elif CURRENCY == JPY
-	const char *gp = jpy;
-#endif
-
-===============================================
-# ## defined bunlar operatörler.
-Defined preprocessor operatörü.
-
-#define UMUT
-#define MEHMET
-
-#ifdef UMUT
-	#ifdef MEHMET
-		typedef int Word;
-	#endif
-#endif
-
-------------------------
-
-Aşağıdaki ilk 2 örnek aynı
-
-#if defined UMUT 
-	//kod
-#endif
-
-#ifdef UMUT
-	//kod
-#endif
-
---------
-
-Aşağıdaki ikisi aynı.
-
-ifndef ile !defined aynı.
-
-#ifndef UMUT
-	//kod
-#endif
-
-#if !defined UMUT
-	//kod
-#endif
-
-
-DEFINED ın farkı Aşağıda
-yani aynı anda iki tane ismi kontrol edebiliyorum.&& || ile .
-#if defined UMUT && defined MEHMET
-	int a = 0;
-#endif
-
-//==========================================================
-//==========================================================
-
-Bir header file birden fazla kez include edilmemeli.
-multiple inclusion guard -> çoklu kez dahile karşı koruma.
-
-bir başlık dosyasını birden fazla include edilirse sentaks hatası olabilir.
-Çok tehlikeli.Bu bazı bildirimlerin iki kez bildirildiğinde sentaks hatası olmasından kaynaklanıyor.
-aynı fonksiyonu iki kez bildirirsek sentaks hatası değil.ama aşağıdaki bildirimi iki kere yakarsak
-sentaks hatası olur.
-
-
-ali.h ve veli.h da aşağıdaki bildirim olsun.
-
-struct Data {
-	int x, y, z;
-};
-
-//source file dan hem umut.h hemde mehmet.h yi include edersek, hem umut hem mehmet utility yi include
-// ettiği için buradan gelen bildirimi source file da iki kere alt alta tekrar edildi
-//ve bu hata verdi.
-// Yani struct Data yı iki kere bildirmeye çalıştı(alt alta yapıştırdı) ve 
-//sentaks hatası oldu.bunu bir koşul altına almak lazım
-
-struct type redefinition hatası görülür.
-
-cozmek için.Hatayı veren tanımın olduğu dosyaya gdilir.
-utility.h orada komutlar yazılır.
-
-//macro tanımlı değilse gir ve tanımla. Eğer tanımlıysa girme ve dolayısıyla tanımlayama.
-//buna multiple inclusion guard deniyor.
-isim olarak UTILITY_INCLUDED denebilir.
-#ifndef UTILITY_INCLUDED
-#define UTILITY_INCLUDED
-
-//kodlar
-
-struct Data {
-	int x, y, z;
-};
-
-#endif
----------------------------------------------
-Bunu otomotik zaten compiler yapıyor.Kendisi ekliyor.
-
-#pragma once 
-
-denen bir macro ekliyor dikkat edildiyse.
-----------------------------------------------
-KURAL
-#ifndef MODUL_H
-#define MODUL_h
-
-//kodlar
-
-struct Data {
-	int x, y, z;
-};
-
-#endif
-==================================
-
-#undef 
-Bir macronun tanımını ortadan kaldırıyor.
-#undef SIZE   size ı ortadan kaldırır.
-
-Neden kullanılır?
-
-#define UMUT 100
-
-#define UMUT 600
-
-Yukarısı tanımsız davranış.
-preprocessor bir macronun iki kere define edildiğini görmemeli.
-sayi / 0 da tanımsız davranış bir not olarak düşelim.
-
-
-#include "ali.h"
-#include "veli.h"
-#include "kudret.h"
-
-#define SIZE 1000 
-ya include edilen dosyalardan birinden SIZE macrosu gelirse. Kod tanımsız davranış olur.
-Macro redefinition bu. bunun engellemek için undef kullanılır.Tanımlı değilse undef hata vermez.
-Sentaks hatası oluşmaz.
-
-Aşağıda doğrusu var.
-1. kullanım alanı bu
-
-#include "ali.h"
-#include "veli.h"
-#include "kudret.h"
-
-#undef SIZE
-#define SIZE 1000
-
-2. Kullanım alanı
-
-void func()
-{
-	#define SIZE 1000
+switch(n)
+	case 'a':  bu geçerli çünkü bir karakter sabiti çünkü bir int değer olarak tutuluyor.
+	case '\x1a':   bu karakter literali de tamsayı sabitidir. geçerli.
+
+	case "Ali":		bu bir char array olduğu için hatalı.
+
+	case SMALL:
+	case MEDIUM:
+	case LARGE:   bunlar sembolik sabit ise ki öyle olmalı.Geçerlidir.
+
+
+	gerek else if gerek switch te oluşma sıklığı yüksek olan durumları yukarı taşımak mantıklı.
+
+
+---------------
+
+default etiketi. default bir keyword.
+default else if teki else ifadesi ile aynıdır. 
+default sonda değil herhangibir yerde olabilir.
+ 
+x = 2;
+switch(x)
+	case 1:
+	...
+	case 2:  
+	...
+	case 3:
+	...
+	case 4:
+	...
 	
-	burada oluşturulan macro bu komutun bulunduğu yerden başlar, include edilecek dosyalar dahil 
-	SIZE ı 1000 le yer değiştirir. Amacımız sadece bu macronun fonksiyonun ana bloğu içinde etkin olması
-	bunun için undef SIZE denir.Bu da macroya kapsam kazandırmış oluruz.yada scope.
+	default:
+	...
 
-	#undef SIZE
+	case altında 2 den fazla statement varsa fonksiyon yapmak mantıklı.
+	
+	tek case ifadesi yerine if else yazmak daha kolay
+	switch(x)
+	{
+		case 1:
+		...
+	}
+	yerine
+	if(x == 1)
+	{
+		...
+	}
 
+	switch (x) {
+	case 1:
+	case 2:
+	case 1: //geçersiz
+}
+ 
+
+
+	switch(x)
+	{				//dikkat: herhangibir case e girdikten sonra, sonrasındaki tüm caseler çalıştırılır.
+		case 1:		// 1 e girerse 1,11,21 çalışır ve break. zaten sadece 21 de yazı var.
+		case 11:	//	11 e girerse 11 ve 21 çalışır ve break, yine printf çalışır.
+		case 21:	// 21 e girerse sadece 21 çalışır orda da printf çalışır ve break.
+			printf("st"); break; 
+		case 2:				
+		case 12:			
+		case 22:
+			printf("nd"); break;
+		case 3:
+		case 13:
+		case 23:
+			printf("rd"); break;
+
+	}
+
+	breaklar zorunlu değil istenirse break hiç yazılmadanda olur.
+
+	Compiler Explorer önemli. https://godbolt.org/
+	Static kod analizi programları
+
+
+
+	----------------------
+
+	 int sum = day;
+
+	switch (month - 1) {
+	case 11	: sum += 30; //fallthrough   //bilerek yapıldığı için bu ifade yazılmış
+	case 10	: sum += 31;  //fallthrough	//yani girdiği yerden aşağı kadar devam edecek çünkü break yok.
+	case 9	: sum += 30;  //fallthrough cpp olsaydı [[fallthrough]]
+	case 8	: sum += 31;  //fallthrough
+	case 7	: sum += 31;  //fallthrough
+	case 6	: sum += 30;  //fallthrough
+	case 5	: sum += 31;  //fallthrough
+	case 4	: sum += 30;  //fallthrough
+	case 3	: sum += 31;  //fallthrough
+	case 2	: sum += 28 + isleap(year); //fallthrough
+	case 1	: sum += 31;
+
+	---------------------------------
+
+	#include <stdio.h>
+	int main()
+	{
+		switch (1) {
+			printf("bu deyim gecerli ama yurutulmez\n");
+			case 1: printf("bir\n"); break;
+			case 2: printf("iki\n"); break;
+		}
+	//
 }
 
-fonksiyonlarda da kullanılır 
+	------------------------------------------------------------------
+	------------------------------------------------------------------
 
-#define max(x,y)  (a > b ? a : b)
+	aşağıdaki geçerli
 
-undef max
+			int main()
+			{
+			int a = 1;
+			switch (a) {
+				int x;			// labellardan önce değişken bildirimi yapılabilir
+				case 1: x = 10; break;
+				case 2: x = 20; break;
+				}
+			}
 
--------------------------------------------------
+			aşağısı ise geçersiz. case 1 altında bildirim var.
 
-NOT: if içerisinde kullanılan macroların define edilme zorunluluğu yok.
-aşağıdaki if e girmez çünkü burada MAX = 0 değerini görüyor.
-Yani define edilmemiş macrolar if içersinde 0 değeri alır.
+			int main()
+			{
+				int a = 1;
+				switch (a) {
+					case 1:
+					int x;		//C’de geçersiz C++ ta geçerli.Bir sonraki case de block tan çıktığı için garbage value.
+					x = 10;		// undefined behavior.
+					//
+					break;
+					case 2: ++x; break;
+					///
+				}
+			}
 
-int main()
-{
-#if	 MAX > 0;
-	typedef unsigned type char;
-#endif
-}
+				int main()
+			{
+				int a = 1;
+				switch (a) {
+					case 1:
+					int x = 10;		//Hem C’de geçersiz hemde C++ ta geçersiz
+					//
+					break;
+					case 2: ++x; break;
+					///
+				}
+			}
 
-BURADAN SONRA PREDEFINED SYMBOLIC CONSTANTS Görülecek.
-öyle macrolar var ki bunların bir define komutu yok. dilin kuralı gereği preprocessor
-bunları yerdeğiştirme işlemine sokuluyor.(macro olayını gerçekleştiriyor).
-Yani include etmedende birçok macro kullanabiliyoruz.
-bunlar  
-__LINE__ 
-__FILE__
-__DATE__
-__TIME__
-__STDC__
 
-int main()
-{
-	printf("%d",__LINE__);
+			Aşağıdaki geçerli çünkü case 1 null ve sonrasında bildirim
+			daha sonrasında diğer case
 
-}
+			int main()
+			{
+				int a = 1;
+				switch (a) {
+				case 1:;
+					int x = 10;		//case içinde olmadığı için bildirim geçerli
+					//
+				   // break;
+				case 2: ++x; printf("%d\n", x); break;
+					///
+				}
+			}
+
+
+
+	ÖNEMLİ!!!!!!!!!!!!
+	case ler sıralı bir şekilde yapıldığında(büyükten küçüğe ya da küçükten büyüğe) 
+	daha low levelda C bir jump table oluşturuyor ve istenen hedefe direkt gidiyor.
+	bu durum else if merdiveninde karşılığını oluşturamayabiliyor.
+
+
+
+	=========================================
+	=========================================
+
+	goto statement
+
+	birçok yerde jump statement var.
+	while
+	for
+	switch
+	görsekte görmesekte assembly karşılığında jump statement var.
+
+	a ) long jump : bir fonksiyonun kod alanından başka bir fonksiyonun kod alanına geçmesine denir. Bu go to
+	b ) local jump(near jump) : aynı fonksiyon alanı içerisinde başka bir yere programın akışını geçirir. setjmp, longjmp isimli fonksiyonlar yapar. 
+
+	Not:
+	iki üç tane while içerisinden bir koşula bağlı olarak hemen çıkmak için go to kullanılabilir. Baya iyi olur.
+	kullanım temalarının dışında da kullanmamak lazım.
+
+	C de labellar var. ismi olan varlıklardır.
+
+	out:  -> bu out isimli bir etiket yaratmış olur.
+	etiketten sonra bir statement gelmeli
+
+	out:
+		;
+		null statement hata değil.olmasaydı sentaks hatasıydı.
+
+	labellar ayrı bir scope kuralına tabidir.
+
+	hatırlatma
+	file scope : global isim alanında tanımlanan isimlerin kapsamı.
+	block scope : block içinde tanımlanmış ismin o blockta kullanılmasıi.
+	func. prorotype : func bildiriminde kullanılan değişken isimlerinin alanı. Sadece parantez içindeki alandaki isim o daisim yazılırsa yani x. void func(int x).
+	function scope : bir label tanımlanır ve yukarıdan da aşağısından da bu label kullanılabilir.labellar ayrı scope olduğu için
+	fonksiyon içindeki diğer isimlerle çakışmaz.
+
+	çakışma olmaz.hata değil.
+	void func()
+	{
+		int out = 5;
+		out:
+			;
+	}
+
+	goto keyword ünü bir label takip etmeli.
+	goto error;
+
+	ve bu fonksiyon içinde error tanımlanmalı
+
+	error:			// yukarıdaki goto akışı buraya yönlendirdi.
+		printf("hata");
+
+
+		//statement
+		//statement
+		if(1)
+			goto error;
+		//statement
+		//statement
+		error:
+			printf("Error\n")
+
+
+			error label yukarıda da olabilirdi ama böyle bir kullanım yok.çok çok farklı bir durumda olabilir.
+			hata deil ama yapılmıyor.Programı yukarı noktaya yönlendirme yok.
+
+
+			while (1)
+				//statement 
+				while(1)
+					//statement1 
+					while (1)
+						//statement2 
+						if(x=5)
+							goto result;
+
+			//statement5
+			//statement6 
+
+			result:
+				printf("result \n");
+
+
+			go to olmadan da bir flag değişken alınır.
+			0 değeri verilir. eğer true olursa break yapılır.
+			diğer tüm while lar içerisinden flaga bakılır true ise break yapılır
+
+			while(1)
+				{
+					switch(1)
+					{
+						break;  burası switch içinden çıkarır. while dan çıkmak için go to kullanılır.
+					}
+				}
+
+
+			switch(x)
+			{
+				case 1: statement1; break;
+				case 2: statement2; break;
+				case 3: statement3; break;
+				default : statement ; break;  // default yerinde defualt yazsaydım burada bir label yaratmış olacaktım
+												// ve hata vermemiş olacaktı. keyword olan default ama defualt: bir label dır.
+
+			}
+
+			--------------------------------------
+			case ifadeleri olarak sembolik sabitlerin (symbolic constants) kullanılması çok sık karşılaşılan bir durumdur
+
+			#define OFF 0
+			#define ON 1
+			#define STANDBY 2
+			#define HOLD 3
+			int get_remote_case(void);
+			int main()
+			{
+				//
+				switch (get_remote_case()) {
+					case OFF : //
+					case ON : //
+					case STANDBY : //
+					case HOLD : //
+					default : //
+				 }
+				 //
+			}
+
+
+			================================================================
+
+
+			Multiple inclusion guard
+			
+			bir başlık dosyasının bir kod dosyası tarafından birden çok kez include edilmesini engelliyor.
+			birden çok include sentaks hatası
+
+			mesela struct ta da sentaks hatası olur
+			//-------------------
+
+			#line	-> bu kod üreten komutlarda kullanılır.__LINE__ macrosunun değerini değiştiriyor.
+			#line 1000 dersem printf("%d",__LINE__) bu değeri 1000 verir.
+			#line 1000 "umut.c"   printf("%s %d",__FILE__,__LINE__)  -> 1000 ve umut yazar. çok özel kullanım senaryosu var.
+
+			//-------------------
+
+			#error -> programın derlenmesini önişlemci aşamasında durduruyor.
+
+			kodda  #error hata var  //yazınca duruyor.derleme sürecinde durduruyor.
+
+			#ifndef  __cplusplus  -> bu C++ ta tanımlı kabul ediliyor.ama C derleyicisi bunu kabul etmiyor.
+			#error BU kaynak dosya sadece c++ derleyicisi ile derlenir.
+			#endif
+
+			//--------------------
+
+			#pragma
+
+			pragma standart ama ne yapılacağı kendisine bağlı. tüm derleyicilerin pragmaları var.
+			aynı olmak zorunda değil
+
+			#pragma once -> multip inc. guard sağlıyor.
+			#pragma pack(1) -> alignment sağlıyor.
+			#pragma warning (disable: 4706)   4706 nolu uyarı mesajını verme demek bu.
 
 
 */
 
 #include <stdio.h>
-#include "umut.h"
-#include "mehmet.h"
 
 int main()
 {
 	
+
 }
