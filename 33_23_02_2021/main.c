@@ -90,8 +90,8 @@
 
 	foo(str)  -> bu int * (pointer sizeof u yani)boyutunu verir. 4 byte. bazı derleyicilerde 8 byte.
 
-	char * str[] = "necati";
-	char *p = str;
+	char * str[] = "necati","veli";
+	char **p = str;
 
 	printf("%zu\n",sizeof ++p); //unevaluated context.++ için kod üretilmez.
 	printf("%zu\n",strlen(p));
