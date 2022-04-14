@@ -28,7 +28,7 @@ void show_ascii(void)
 
 }
 
-
+NOT : 20. ders ile bu ders bağlantılı kesinlikle oku
 
 int main()
 {
