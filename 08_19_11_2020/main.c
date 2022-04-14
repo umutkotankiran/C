@@ -72,6 +72,12 @@ int main()
 	long long
 	unsigned long long
 
+
+	NOT!!!!!!!!!!!!!!!!!!!!	
+	Aynı tamsayı türünün işaretlisi ve işaretsizi işleme sokulursa işlem işaretsiz türde yapılır.
+	İşaretsiz bir pozitif değer ile işaretli bir negatif değer ile işleme sokulursa, sign x değerini unsigned x e çevirecek. 
+
+
 	*/
 	
 	if (f == 1.4)
