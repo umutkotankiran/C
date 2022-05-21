@@ -584,15 +584,15 @@ int main()
 -----------------------
 
 --------------------------------------------------------------------|
-																	|
-NOT!!!!!! DÖKÜMANTASYONDAN ALDIM									|
-Volatile değişkeni,volatile olmayan bir lvalue değişken ile			|
-read/write yapmak UNDEFINED BAHAVIOR.								|
-																	|
-volatile int n = 1; // object of volatile-qualified type			|
-int* p = (int*)&n;													|
-int val = *p; // undefined behavior.								|
-																	|
+								    |
+NOT!!!!!! DÖKÜMANTASYONDAN ALDIM				    |
+Volatile değişkeni,volatile olmayan bir lvalue değişken ile	    |
+read/write yapmak UNDEFINED BAHAVIOR.				    |
+								    |
+volatile int n = 1; // object of volatile-qualified type	    |
+int* p = (int*)&n;						    |
+int val = *p; // undefined behavior.				    |
+								    |
 --------------------------------------------------------------------|
 
 
