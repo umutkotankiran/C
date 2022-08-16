@@ -97,7 +97,7 @@ void putline(void)
 void clear_input_buffer(void)
 {
 	int c;
-	while ((c = getchar()) != '\n' && c != 'EOF')
+	while ((c = getchar()) != '\n' && c != EOF)
 		;
 
 }
