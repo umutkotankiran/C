@@ -15,4 +15,5 @@ int main()
 	
 	int ival = max(max(x, y),max(z,t));
 	printf("ival = %d\n",ival);
+	printf("test\n");
 }
