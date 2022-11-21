@@ -60,26 +60,20 @@ a - dosya varsa / yoksa ne olacak?
 b - bu dosya açıldığında üzerinde hangi işlemleri yapabilirim? (okuma - yazma)
 
 
-											varsa / yoksa
+							varsa / yoksa
 
-okuma modu (read)					Dosya varsa açılır / yoksa açılmaz					Dosyadan okuma yapılır ama yazılamaz
-
-
+okuma modu (read)					Dosya varsa açılır / yoksa açılmaz				Dosyadan okuma yapılır ama yazılamaz
 yazma modu (write)					Dosya varsa sıfırlanır(truncate) açılır /			Dosyaya yazma yapılır ama okuma yapılamaz
-										yoksa yeni birtane oluşturulur
-
-sona ekleme modu (append)			varsa açılır / yoksa oluşturulur					Dosyadan okuma yapılamaz ama dosya sonuna yazılır
+							yoksa yeni birtane oluşturulur
+sona ekleme modu (append)				varsa açılır / yoksa oluşturulur				Dosyadan okuma yapılamaz ama dosya sonuna yazılır
 
 
 ---------------------------
 
 okuma modu + (read)					Dosya varsa açılır / yoksa açılmaz				Dosyadan okuma yapılır ve yazılabilir
-
-
-yazma modu + (write)				Dosya varsa sıfırlanır(truncate) açılır /		Dosyaya yazma yapılır ve dosyadan okunabilir
-										yoksa yeni birtane oluşturulur
-
-sona ekleme + modu  (append)		varsa açılır / yoksa oluşturulur				Dosyadan okuma yapılır ve yazma işlemi sondan yapılır
+yazma modu + (write)					Dosya varsa sıfırlanır(truncate) açılır/ 			Dosyaya yazma yapılır ve dosyadan okunabilir
+							yoksa yeni birtane oluşturulur
+sona ekleme + modu  (append)				varsa açılır / yoksa oluşturulur				Dosyadan okuma yapılır ve yazma işlemi sondan yapılır
 
 
 
