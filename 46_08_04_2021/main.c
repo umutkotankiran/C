@@ -448,7 +448,7 @@ struct data x; olmaz.
 
 	size_t türünden tamsayı değeri döner.
 	yapının başlangıcı olan adresten ne kadar uzak olduğunu verir.
-
+	
 
 	ÖR:
 	//default gelen offsetoff
@@ -488,39 +488,8 @@ struct data x; olmaz.
 
 	printf("%d", *((int*)((char*)&nec + offsetof(Nec, ival))));
 
+	alignof(short); -> short 2 nin tamkatı olan yerlere yerleştirilebilir demek
+	alignof(int); -> int 4 ün tamkatları olan adreslere yerleştirilebilir ...
+ 
 
 	*/
-
-
-
-#define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
-#include "employeelist.h"
-#include "nutility.h"
-#include "Employee.h"
-#include <time.h>
-#include <conio.h>
-#include <stdlib.h>
-#include <stddef.h>
-
-
-#define			Offsetof(type,member)		(size_t)&((type *)0)->member
-
-
-typedef struct {
-	char cx;
-	int ival;
-	char cy;
-}Nec;
-
-
-
-int main()
-{
-	Nec nec;
-	nec.ival = 10;
-
-	printf("%d", *((int*)((char*)&nec + offsetof(Nec, ival)))); // char adresinden int in adresine bu şekilde geçebiliriz.
-
-
-}
